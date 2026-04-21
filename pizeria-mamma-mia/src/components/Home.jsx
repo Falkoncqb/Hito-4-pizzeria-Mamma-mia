@@ -1,40 +1,42 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from './Header';
 import CardPizza from './CardPizza';
-import pizzaNapolitana from '../assets/pizza-napolitana.jpeg';
-import pizzaEspañola from '../assets/pizza-española.jpeg';
-import pizzaPepperoni from '../assets/pizza-pepperoni.jpg';
 
 const Home = () => {
+  const [pizzas, setPizzas] = useState([]);
+
+  useEffect(() => {
+    const fetchPizzas = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/pizzas');
+        if (!response.ok) {
+          throw new Error('Error en la respuesta de la red');
+        }
+        const data = await response.json();
+        setPizzas(data);
+      } catch (error) {
+        console.error("Error fetching pizzas:", error);
+      }
+    };
+
+    fetchPizzas();
+  }, []);
+
   return (
     <div>
       <Header />
       <div className="container my-5">
         <div className="row">
-          <div className="col-md-4 mb-4">
-            <CardPizza
-              name="Napolitana"
-              price={5950}
-              ingredients={["mozzarella", "tomates", "jamón", "orégano"]}
-              img={pizzaNapolitana}
-            />
-          </div>
-          <div className="col-md-4 mb-4">
-            <CardPizza
-              name="Española"
-              price={6950}
-              ingredients={["mozzarella", "gorgonzola", "parmesano", "provolone"]}
-              img={pizzaEspañola}
-            />
-          </div>
-          <div className="col-md-4 mb-4">
-            <CardPizza
-              name="Pepperoni"
-              price={6950}
-              ingredients={["mozzarella", "pepperoni", "orégano"]}
-              img={pizzaPepperoni}
-            />
-          </div>
+          {pizzas.map((pizza) => (
+            <div className="col-md-4 mb-4" key={pizza.id}>
+              <CardPizza
+                name={pizza.name}
+                price={pizza.price}
+                ingredients={pizza.ingredients}
+                img={pizza.img}
+              />
+            </div>
+          ))}
         </div>
       </div>
     </div>
